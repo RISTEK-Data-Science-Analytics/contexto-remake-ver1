@@ -18,7 +18,7 @@ if 'guesses' not in st.session_state:
     st.session_state['used_word'] = []
 
 # Text input for user guess
-user_guess = lower(st.text_input('Type a word'))
+user_guess = st.text_input('Type a word').lower()
 
 # Button to submit the guess
 if st.button('Guess'):
