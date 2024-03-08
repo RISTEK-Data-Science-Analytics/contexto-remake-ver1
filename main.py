@@ -2,13 +2,23 @@ import streamlit as st
 import pandas as pd
 
 # Load your similarity DataFrame
-similarity_df = pd.read_csv('game.csv').set_index('indeks')
+similarity_df = pd.read_csv('game.csv', index_col='indeks')
 
 # Choose a game (target word) - this can be randomized or sequential
-game_number = st.sidebar.number_input('Choose a game number', value=1, min_value=1)
+# game_number = st.sidebar.number_input('Choose a game number', value=1, min_value=1)
+with st.sidebar:
+    cols = st.columns(len(similarity_df.columns))
+    for i, col in enumerate(cols):
+        with col:
+            button = st.button(label=i+1, key=i+1)
+            if button:
+                target_word = similarity_df.columns[i]
+                used_df = similarity_df[[target_word]].sort_values(by=target_word, ascending=False)
+                used_df['rank'] = range(1,used_df.shape[0]+1)
 
 # Get the column corresponding to the game
-target_word = similarity_df.columns[game_number - 1]
+
+target_word = similarity_df.columns[0]
 used_df = similarity_df[[target_word]].sort_values(by=target_word, ascending=False)
 used_df['rank'] = range(1,used_df.shape[0]+1)
 
