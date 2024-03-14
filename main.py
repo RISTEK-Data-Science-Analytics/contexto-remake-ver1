@@ -1,6 +1,12 @@
 import streamlit as st
 import pandas as pd
 
+def rank_to_color(rank, max_rank):
+    value = rank / max_rank
+    green_value = 255 - int(value * 255)
+    red_value = int(value * 255)
+    return f'rgb({red_value},{green_value},0)'
+
 def load_sidebar():
     with st.sidebar:
         st.sidebar.title("Choose a game number")
@@ -71,13 +77,41 @@ if __name__ == "__main__":
             st.error("Word has been used.")
         else:
             st.error("Word not found in the vocabulary.")
-        
+
         # Sort the guesses based on rank
         sorted_guesses = sorted(st.session_state['guesses'], key=lambda x: x[1])
 
-        # Display the sorted guesses and their rank
-        for guess, rank in sorted_guesses:
-            st.write(f"Rank: {rank}, Word: {guess}")
+        # Find the max rank for scaling the colors
+        max_rank = 30346
+
+        # Create a DataFrame for the guesses
+        df_guesses = pd.DataFrame(sorted_guesses, columns=['Word', 'Rank'])
+
+        # Normalize the 'Rank' column to get the length of the bar
+        df_guesses['Length'] = 1 - (df_guesses['Rank'] / df_guesses['Rank'].max())
+        # df_guesses['Length'] = 1- (df_guesses['Rank'] / max_rank)
+
+        # Map the 'Rank' to a color
+        df_guesses['Color'] = df_guesses['Rank'].apply(lambda rank: rank_to_color(rank, max_rank))
+
+        # # Display the sorted guesses and their rank
+        # for guess, rank in sorted_guesses:
+        #     st.write(f"Rank: {rank}, Word: {guess}")
+
+        for _, row in df_guesses.iterrows():
+            # Calculate the percentage width of the bar based on the rank
+            percentage_width = row['Length'] * 100
+            # Generate the HTML for the custom bar with text inside it
+            bar_html = f"""
+            <div style="width: 100%; margin-bottom: 10px; background: linear-gradient(to right, {row['Color']} {percentage_width}%, lightgrey {1-percentage_width}%); border-radius: 3px; padding: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div style="font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; color: #333;">
+                    {row['Word']} : {row['Rank']}
+                </div>
+            </div>
+
+            """
+            st.markdown(bar_html, unsafe_allow_html=True)
+
 
     # Show the current guesses and their ranks
     st.write("Current guesses:")
