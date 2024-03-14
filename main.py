@@ -6,15 +6,18 @@ similarity_df = pd.read_csv('game.csv', index_col='indeks')
 
 # Choose a game (target word) - this can be randomized or sequential
 # game_number = st.sidebar.number_input('Choose a game number', value=1, min_value=1)
+
 with st.sidebar:
+    sidebar_title = st.title("Level: 1")
     cols = st.columns(len(similarity_df.columns))
     for i, col in enumerate(cols):
         with col:
-            button = st.button(label=i+1, key=i+1)
+            button = st.button(label=f'{i+1}', key=i+1)
             if button:
                 target_word = similarity_df.columns[i]
                 used_df = similarity_df[[target_word]].sort_values(by=target_word, ascending=False)
                 used_df['rank'] = range(1,used_df.shape[0]+1)
+                sidebar_title = st.title(f"Level: {i+1}")
 
 # Get the column corresponding to the game
 
@@ -28,7 +31,10 @@ if 'guesses' not in st.session_state:
     st.session_state['used_word'] = []
 
 # Text input for user guess
+title = st.title(target_word)
 user_guess = st.text_input('Type a word').lower()
+
+
 
 # Button to submit the guess
 if st.button('Guess'):
