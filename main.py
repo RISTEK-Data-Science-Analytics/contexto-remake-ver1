@@ -3,12 +3,17 @@ import pandas as pd
 
 def load_sidebar():
     with st.sidebar:
+        st.sidebar.title("Choose a game number")
         cols = st.columns(len(similarity_df.columns))
         for i, col in enumerate(cols, start=0):
             with col:
                 button = st.button(label=f'{i+1}', key=f"button_{i+1}")
                 if button:
-                    # Update the current target word in the session state
+                    if st.session_state['current_number'] != i+1:  # Check if the game number has changed
+                        st.session_state['guesses'] = []  # Reset guesses
+                        st.session_state['used_word'] = []  # Reset used words
+                        
+                    # Update the current target word and game number in the session state
                     st.session_state['current_target_word'] = similarity_df.columns[i]
                     st.session_state['current_number'] = i+1
 
@@ -33,16 +38,21 @@ if __name__ == "__main__":
         st.session_state['current_target_word'] = similarity_df.columns[0]
     
     if 'current_number' not in st.session_state:
+        # Initialize the current game number
         st.session_state['current_number'] = 1
+    
+    if 'guesses' not in st.session_state:
+        # Initialize guesses
+        st.session_state['guesses'] = []
+    
+    if 'used_word' not in st.session_state:
+        # Initialize used words
+        st.session_state['used_word'] = []
 
     load_sidebar()
 
     # Update the used DataFrame based on the current target word
     used_df = update_used_df()
-
-    if 'guesses' not in st.session_state:
-        st.session_state['guesses'] = []
-        st.session_state['used_word'] = []
 
     title = st.title(f"Game number {st.session_state['current_number']}")
     user_guess = st.text_input('Type a word').lower()
