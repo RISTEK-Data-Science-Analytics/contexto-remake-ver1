@@ -1,6 +1,14 @@
 import streamlit as st
 import pandas as pd
 
+hide_streamlit_style = """
+            <style>
+            [data-testid="stToolbar"] {visibility: hidden !important;}
+            footer {visibility: hidden !important;}
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
 def rank_to_color(rank, max_rank_color):
     value = rank / max_rank_color
     if value >= 1:
